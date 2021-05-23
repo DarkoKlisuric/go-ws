@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-
 var wsChan = make(chan WsJsonPayload)
 
 var clients = make(map[WebSocketConnection]string)
@@ -40,9 +39,9 @@ type WebSocketConnection struct {
 
 // WsJsonResponse defines the response sent back from websocket
 type WsJsonResponse struct {
-	Action      string `json:"action"`
-	Message     string `json:"message"`
-	MessageType string `json:"messageType"`
+	Action         string   `json:"action"`
+	Message        string   `json:"message"`
+	MessageType    string   `json:"messageType"`
 	ConnectedUsers []string `json:"connected_users"`
 }
 
@@ -82,7 +81,7 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 func ListenForWs(conn *WebSocketConnection) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("Error", fmt.Sprintf("%v", r) )
+			log.Println("Error", fmt.Sprintf("%v", r))
 		}
 	}()
 
@@ -104,7 +103,7 @@ func ListenToWsChannel() {
 	var response WsJsonResponse
 
 	for {
-		e := <- wsChan
+		e := <-wsChan
 
 		switch e.Action {
 		case "username":
