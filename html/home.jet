@@ -51,19 +51,19 @@
 <script>
     let socket = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        socket = new WebSocket("ws://127.0.0.1:8080/ws");
+    document.addEventListener('DOMContentLoaded', function () {
+        socket = new WebSocket('ws://127.0.0.1:8080/ws');
 
         socket.onopen = () => {
-            console.log("Successfully connected");
+            console.log('Successfully connected');
         }
 
         socket.onclose = () => {
-            console.log("Connection closed");
+            console.log('Connection closed');
         }
 
         socket.onerror = error => {
-            console.log("There was an error");
+            console.log('There was an error');
         }
 
         socket.onmessage = msg => {
@@ -71,7 +71,15 @@
             let j = JSON.parse(msg.data);
             console.log(j);
         }
+
+        let userInput = document.getElementById('username');
+        userInput.addEventListener('change', function () {
+            let jsonData = {};
+            jsonData['action'] = 'username';
+            jsonData['username'] = this.value;
+
+            socket.send(JSON.stringify(jsonData))
+        })
     })
 </script>
-
 </html>
