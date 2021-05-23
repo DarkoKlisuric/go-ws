@@ -1,12 +1,18 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gorilla/websocket"
 )
+
+
+var wsChan = make(chan WsJsonPayload)
+
+var clients = make(map[WebSocketConnection]string)
 
 var views = jet.NewSet(
 	jet.NewOSFileSystemLoader("./html"),
@@ -59,10 +65,61 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	respone.Message = `<em><small>Connected to server</small></em>`
 
+	conn := WebSocketConnection{Conn: ws}
+	clients[conn] = ""
+
 	err = ws.WriteJSON(respone)
 
 	if err != nil {
 		log.Panicln(err)
+	}
+
+	go ListenForWs(&conn)
+}
+
+func ListenForWs(conn *WebSocketConnection) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Error", fmt.Sprintf("%v", r) )
+		}
+	}()
+
+	var payload WsJsonPayload
+
+	for {
+		err := conn.ReadJSON(&payload)
+
+		if err != nil {
+			// do nothing
+		} else {
+			payload.Conn = *conn
+			wsChan <- payload
+		}
+	}
+}
+
+func ListenToWsChannel() {
+	var response WsJsonResponse
+
+	for {
+		e := <- wsChan
+
+		response.Action = "Got here"
+		response.Message = fmt.Sprintf("Some message, and  action was %s", e.Action)
+	}
+}
+
+func broadcastToAll(response WsJsonResponse) {
+	for client := range clients {
+		err := client.WriteJSON(response)
+
+		if err != nil {
+			log.Println("websocket err")
+
+			_ = client.Close()
+
+			delete(clients, client)
+		}
 	}
 }
 

@@ -52,10 +52,10 @@
     let socket = null;
 
     document.addEventListener("DOMContentLoaded", function () {
-        socket = new WebSocket("ws://127.0.0.1:8080/ws")
+        socket = new WebSocket("ws://127.0.0.1:8080/ws");
 
         socket.onopen = () => {
-            console.log("Successfully connected")
+            console.log("Successfully connected");
         }
 
         socket.onclose = () => {
@@ -63,11 +63,13 @@
         }
 
         socket.onerror = error => {
-            console.log("There was an error")
+            console.log("There was an error");
         }
 
         socket.onmessage = msg => {
-            console.log(msg)
+            console.log(msg);
+            let j = JSON.parse(msg.data);
+            console.log(j);
         }
     })
 </script>
