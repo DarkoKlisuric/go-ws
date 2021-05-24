@@ -14,8 +14,10 @@ func routes() http.Handler {
 	mux.Get("/ws", http.HandlerFunc(handlers.WsEndpoint))
 
 	fileServer := http.FileServer(http.Dir("./static/"))
-
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
+
+	assets := http.FileServer(http.Dir("./assets/js/"))
+	mux.Get("/assets/js/", http.StripPrefix("/assets/js", assets))
 
 	return mux
 }
