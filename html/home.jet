@@ -52,6 +52,9 @@
         crossorigin="anonymous"></script>
 <script>
     let socket = null;
+    let output = document.getElementById('output');
+    let userField = document.getElementById('username');
+    let messageField = document.getElementById('message');
 
     window.onbeforeunload = function () {
         let jsonData = {};
@@ -92,6 +95,9 @@
                         })
                     }
                     break;
+                case 'broadcast':
+                    output.innerHTML = output.innerHTML + data.message + '<br>';
+                    break;
             }
         }
 
@@ -103,6 +109,44 @@
 
             socket.send(JSON.stringify(jsonData))
         })
+
+        document.getElementById('message').addEventListener('keydown', function (event) {
+            if (event.code === 'Enter') {
+                if (!socket) {
+                    console.log('No connection');
+
+                    return false;
+                }
+                if ((userField.value === '') || (messageField.value === '')) {
+                    alert('Fill out user and message')
+                    return false;
+                } else {
+                    sendMessage()
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                sendMessage();
+            }
+        })
+
+        document.getElementById('sendBtn').addEventListener('click', function () {
+            if ((userField.value === '') || (messageField.value === '')) {
+                alert('Fill out user and message')
+                return false;
+            } else {
+                sendMessage()
+            }
+        })
     })
+
+    function sendMessage() {
+        let jsonData = {};
+        jsonData['action'] = 'broadcast';
+        jsonData['username'] = document.getElementById('username').value;
+        jsonData['message'] = document.getElementById('message').value;
+
+        socket.send(JSON.stringify(jsonData))
+        document.getElementById('message').value = '';
+    }
 </script>
 </html>
